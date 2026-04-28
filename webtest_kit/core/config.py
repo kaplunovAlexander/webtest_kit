@@ -246,6 +246,8 @@ def get_config(config_path: Optional[str] = None) -> WebtestKitConfig:
     """
     if config_path:
         path = Path(config_path)
+    elif env_path := os.environ.get("WEBTEST_CONFIG"):
+        path = Path(env_path)
     else:
         path = _find_config_file()
 
@@ -256,7 +258,6 @@ def get_config(config_path: Optional[str] = None) -> WebtestKitConfig:
         config = WebtestKitConfig(**raw)
     except Exception as e:
         console.print(f"\n[red]Config validation error in {path}:[/red]\n")
-        # Pydantic даёт подробные сообщения — выводим каждое
         if hasattr(e, "errors"):
             for err in e.errors():
                 location = " → ".join(str(l) for l in err["loc"])

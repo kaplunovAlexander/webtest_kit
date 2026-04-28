@@ -247,15 +247,23 @@ def report(report_type: str):
             )
             sys.exit(1)
 
-        console.print("\n[bold]Opening Allure report...[/bold]")
-        result = subprocess.run(
-            ["allure", "serve", str(results_dir)]
-        )
-        if result.returncode != 0:
+        # Проверяем что allure CLI установлен
+        import shutil
+        if not shutil.which("allure"):
             console.print(
-                "[yellow]Hint:[/yellow] Install Allure CLI: "
-                "https://allurereport.org/docs/install/"
+                "[red]Error:[/red] Allure CLI not found.\n\n"
+                "Install it with one of:\n"
+                "  [cyan]scoop install allure[/cyan]           (Windows, recommended)\n"
+                "  [cyan]npm install -g allure-commandline[/cyan]\n"
+                "  [cyan]brew install allure[/cyan]             (macOS)\n\n"
+                "Or use HTML report instead:\n"
+                "  [cyan]webtest-kit run --html-report[/cyan]\n"
+                "  [cyan]webtest-kit report --type html[/cyan]"
             )
+            sys.exit(1)
+
+        console.print("\n[bold]Opening Allure report...[/bold]")
+        subprocess.run(["allure", "serve", str(results_dir)])
 
     elif report_type == "html":
         report_file = Path("reports/report.html")

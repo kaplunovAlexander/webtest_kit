@@ -1,0 +1,36 @@
+# demo/config.yaml
+# TaskFlow demo application — webtest-kit configuration
+
+base_url: http://localhost:8000
+
+credentials:
+  admin:
+    username: admin
+    password: admin123
+  manager:
+    username: manager
+    password: manager123
+  user:
+    username: testuser
+    password: user1234
+
+auth:
+  type: cookie_jwt
+  login_url: /auth/login
+  logout_url: /auth/logout
+  username_field: username
+  password_field: password
+
+browser:
+  name: chromium
+  headless: true
+  slowmo: 0
+  timeout: 8000
+  viewport_width: 1280
+  viewport_height: 720
+
+report:
+  output_dir: demo/reports
+  allure: false
+  html: false
+  screenshot_on_failure: true

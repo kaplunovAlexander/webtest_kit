@@ -173,7 +173,7 @@ class BasePage:
 
         Примеры:
             self.wait_for_url("/dashboard")
-            self.wait_for_url(r"/projects/\d+")
+            self.wait_for_url(r"/projects/\\d+")
         """
         ms = timeout or self._timeout
         if re.search(r"[\^\$\.\*\+\?\{\}\[\]\|\\]", pattern):
