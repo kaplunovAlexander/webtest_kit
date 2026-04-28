@@ -1,0 +1,64 @@
+<!-- backend/app/templates/projects/list.html -->
+{% extends "base.html" %}
+{% block title %}Projects — TaskFlow{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">Projects</h1>
+  {% if user.role in ('admin', 'manager') %}
+    <a href="/projects/new" class="btn btn-primary" data-testid="btn-new-project">
+      + New project
+    </a>
+  {% endif %}
+</div>
+
+{% if projects %}
+  <div class="card" style="padding: 0; overflow: hidden;">
+    <table class="table" data-testid="projects-table">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Owner</th>
+          <th>Tasks</th>
+          <th>Created</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for project in projects %}
+        <tr data-testid="project-row" data-project-id="{{ project.id }}">
+          <td>
+            <a href="/projects/{{ project.id }}" data-testid="project-link">
+              {{ project.title }}
+            </a>
+          </td>
+          <td style="color: var(--muted);">{{ project.owner.username }}</td>
+          <td style="color: var(--muted);">{{ project.tasks | length }}</td>
+          <td style="color: var(--muted); font-size: .8rem;">
+            {{ project.created_at.strftime('%d %b %Y') }}
+          </td>
+          <td style="text-align: right;">
+            {% if user.role in ('admin', 'manager') or project.owner_id == user.id %}
+              <a href="/projects/{{ project.id }}/edit"
+                 class="btn btn-ghost btn-sm"
+                 data-testid="btn-edit-project">Edit</a>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+{% else %}
+  <div class="card" style="text-align: center; padding: 4rem 2rem;" data-testid="empty-state">
+    <div style="font-size: 2.5rem; margin-bottom: 1rem;">📋</div>
+    <div style="color: var(--muted); margin-bottom: 1.5rem;">No projects yet.</div>
+    {% if user.role in ('admin', 'manager') %}
+      <a href="/projects/new" class="btn btn-primary" data-testid="btn-new-project-empty">
+        Create first project
+      </a>
+    {% endif %}
+  </div>
+{% endif %}
+{% endblock %}

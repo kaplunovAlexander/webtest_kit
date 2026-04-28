@@ -1,0 +1,98 @@
+<!-- backend/app/templates/auth/login.html -->
+{% extends "base.html" %}
+{% block title %}Login — TaskFlow{% endblock %}
+
+{% block extra_styles %}
+<style>
+  .auth-wrap {
+    min-height: calc(100vh - 58px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: -2rem;
+  }
+  .auth-card {
+    width: 100%;
+    max-width: 400px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 2.5rem 2rem;
+  }
+  .auth-title {
+    font-family: var(--font-head);
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: .4rem;
+    letter-spacing: -.03em;
+  }
+  .auth-sub {
+    color: var(--muted);
+    font-size: .875rem;
+    margin-bottom: 2rem;
+  }
+  .auth-footer {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: .85rem;
+    color: var(--muted);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-title">Welcome back</div>
+    <div class="auth-sub">Sign in to your TaskFlow account</div>
+
+    {% if success %}
+      <div class="alert alert-success" data-testid="alert-success">{{ success }}</div>
+    {% endif %}
+
+    {% if errors %}
+      <div class="alert alert-danger" data-testid="alert-error">
+        {% for e in errors %}{{ e }}{% if not loop.last %}<br>{% endif %}{% endfor %}
+      </div>
+    {% endif %}
+
+    <form method="post" action="/auth/login" novalidate>
+      <div class="form-group">
+        <label class="form-label" for="username">Username</label>
+        <input
+          id="username"
+          name="username"
+          type="text"
+          class="form-control"
+          placeholder="your_username"
+          autocomplete="username"
+          data-testid="input-username"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          class="form-control"
+          placeholder="••••••••"
+          autocomplete="current-password"
+          data-testid="input-password"
+          required
+        />
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;" data-testid="btn-login">
+        Sign in
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      Don't have an account? <a href="/auth/register">Register</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

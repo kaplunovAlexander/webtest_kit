@@ -1,0 +1,104 @@
+<!-- backend/app/templates/users/list.html -->
+{% extends "base.html" %}
+{% block title %}Users — TaskFlow{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">Users</h1>
+  <span style="color: var(--muted); font-size: .875rem;">
+    {{ users | length }} total
+  </span>
+</div>
+
+<div class="card" style="padding: 0; overflow: hidden;">
+  <table class="table" data-testid="users-table">
+    <thead>
+      <tr>
+        <th>Username</th>
+        <th>Full name</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Status</th>
+        <th>Joined</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in users %}
+      <tr data-testid="user-row" data-user-id="{{ u.id }}">
+
+        <td>
+          <a href="/users/{{ u.id }}" data-testid="user-link">
+            {{ u.username }}
+          </a>
+          {% if u.id == user.id %}
+            <span style="font-size: .7rem; color: var(--muted); margin-left: .3rem;">(you)</span>
+          {% endif %}
+        </td>
+
+        <td style="color: var(--muted);">
+          {{ u.full_name or '—' }}
+        </td>
+
+        <td style="color: var(--muted); font-size: .85rem;">
+          {{ u.email }}
+        </td>
+
+        <td>
+          <span
+            class="status-badge"
+            style="
+              {% if u.role.value == 'admin' %}
+                background: rgba(255,193,7,.12); color: #ffc107;
+              {% elif u.role.value == 'manager' %}
+                background: rgba(108,99,255,.15); color: #857dff;
+              {% else %}
+                background: rgba(123,126,148,.15); color: var(--muted);
+              {% endif %}
+            "
+            data-testid="user-role"
+          >
+            {{ u.role.value | title }}
+          </span>
+        </td>
+
+        <td>
+          <span
+            class="status-badge {% if u.is_active %}status-done{% else %}status-todo{% endif %}"
+            data-testid="user-status"
+          >
+            {% if u.is_active %}Active{% else %}Inactive{% endif %}
+          </span>
+        </td>
+
+        <td style="color: var(--muted); font-size: .8rem;">
+          {{ u.created_at.strftime('%d %b %Y') }}
+        </td>
+
+        <td style="text-align: right;">
+          <div style="display: flex; gap: .5rem; justify-content: flex-end;">
+            <a href="/users/{{ u.id }}"
+               class="btn btn-ghost btn-sm"
+               data-testid="btn-edit-user">Edit</a>
+
+            {% if u.id != user.id %}
+            <form method="post" action="/users/{{ u.id }}/toggle-active"
+                  onsubmit="return confirm('{% if u.is_active %}Deactivate{% else %}Activate{% endif %} {{ u.username }}?')">
+              <button
+                type="submit"
+                class="btn btn-sm {% if u.is_active %}btn-danger{% else %}btn-ghost{% endif %}"
+                data-testid="btn-toggle-active"
+              >
+                {% if u.is_active %}Deactivate{% else %}Activate{% endif %}
+              </button>
+            </form>
+            {% endif %}
+          </div>
+        </td>
+
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

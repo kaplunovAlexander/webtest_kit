@@ -1,0 +1,98 @@
+<!-- backend/app/templates/auth/register.html -->
+{% extends "base.html" %}
+{% block title %}Register — TaskFlow{% endblock %}
+
+{% block extra_styles %}
+<style>
+  .auth-wrap  { min-height: calc(100vh - 58px); display: flex; align-items: center; justify-content: center; margin-top: -2rem; }
+  .auth-card  { width: 100%; max-width: 420px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 2.5rem 2rem; }
+  .auth-title { font-family: var(--font-head); font-size: 1.5rem; font-weight: 800; margin-bottom: .4rem; letter-spacing: -.03em; }
+  .auth-sub   { color: var(--muted); font-size: .875rem; margin-bottom: 2rem; }
+  .auth-footer{ text-align: center; margin-top: 1.5rem; font-size: .85rem; color: var(--muted); }
+  .input-hint { font-size: .78rem; color: var(--muted); margin-top: .3rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-title">Create account</div>
+    <div class="auth-sub">Join TaskFlow to manage your projects</div>
+
+    {% if errors %}
+      <div class="alert alert-danger" data-testid="alert-error">
+        {% for e in errors %}{{ e }}{% if not loop.last %}<br>{% endif %}{% endfor %}
+      </div>
+    {% endif %}
+
+    <form method="post" action="/auth/register" novalidate>
+      <div class="form-group">
+        <label class="form-label" for="email">Email</label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          class="form-control"
+          placeholder="you@example.com"
+          value="{{ form.get('email', '') }}"
+          autocomplete="email"
+          data-testid="input-email"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="username">Username</label>
+        <input
+          id="username"
+          name="username"
+          type="text"
+          class="form-control"
+          placeholder="john_doe"
+          value="{{ form.get('username', '') }}"
+          autocomplete="username"
+          data-testid="input-username"
+          required
+        />
+        <div class="input-hint">3+ characters, letters, digits and underscores only</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="full_name">Full name <span style="color:var(--muted)">(optional)</span></label>
+        <input
+          id="full_name"
+          name="full_name"
+          type="text"
+          class="form-control"
+          placeholder="John Doe"
+          value="{{ form.get('full_name', '') }}"
+          data-testid="input-full-name"
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          class="form-control"
+          placeholder="••••••••"
+          autocomplete="new-password"
+          data-testid="input-password"
+          required
+        />
+        <div class="input-hint">At least 6 characters</div>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;" data-testid="btn-register">
+        Create account
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      Already have an account? <a href="/auth/login">Sign in</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

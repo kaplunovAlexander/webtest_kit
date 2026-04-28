@@ -1,0 +1,212 @@
+<!-- backend/app/templates/base.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}TaskFlow{% endblock %}</title>
+
+  <!-- Google Fonts: Syne (заголовки) + DM Sans (текст) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── CSS Variables ── */
+    :root {
+      --bg:        #0f1117;
+      --surface:   #1a1d27;
+      --border:    #2a2d3a;
+      --accent:    #6c63ff;
+      --accent-h:  #857dff;
+      --danger:    #ff5c5c;
+      --success:   #4caf82;
+      --text:      #e8e9f0;
+      --muted:     #7b7e94;
+      --radius:    10px;
+      --font-head: 'Syne', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { color: var(--accent-h); }
+
+    /* ── Navbar ── */
+    .navbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .navbar__brand {
+      font-family: var(--font-head);
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.02em;
+    }
+    .navbar__brand span { color: var(--accent); }
+    .navbar__links { display: flex; align-items: center; gap: 1.5rem; }
+    .navbar__links a { color: var(--muted); font-size: 0.9rem; transition: color .15s; }
+    .navbar__links a:hover { color: var(--text); }
+    .navbar__links .badge {
+      background: var(--border);
+      color: var(--muted);
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+
+    /* ── Layout ── */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+    .page-title {
+      font-family: var(--font-head);
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      padding: .5rem 1.1rem;
+      border-radius: var(--radius);
+      font-family: var(--font-body);
+      font-size: .875rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: opacity .15s, transform .1s;
+    }
+    .btn:active { transform: scale(.97); }
+    .btn-primary  { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent-h); color: #fff; }
+    .btn-ghost    { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+    .btn-ghost:hover { color: var(--text); border-color: var(--muted); }
+    .btn-danger   { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
+    .btn-danger:hover { background: var(--danger); color: #fff; }
+    .btn-sm       { padding: .3rem .75rem; font-size: .8rem; }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+    }
+
+    /* ── Forms ── */
+    .form-group { margin-bottom: 1.2rem; }
+    .form-label { display: block; font-size: .85rem; color: var(--muted); margin-bottom: .4rem; }
+    .form-control {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: .6rem .9rem;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: .9rem;
+      transition: border-color .15s;
+    }
+    .form-control:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    select.form-control option { background: var(--surface); }
+    textarea.form-control { resize: vertical; min-height: 90px; }
+
+    /* ── Alerts ── */
+    .alert {
+      padding: .75rem 1rem;
+      border-radius: var(--radius);
+      font-size: .875rem;
+      margin-bottom: 1.2rem;
+    }
+    .alert-danger  { background: rgba(255,92,92,.1);  border: 1px solid rgba(255,92,92,.3);  color: #ff8f8f; }
+    .alert-success { background: rgba(76,175,130,.1); border: 1px solid rgba(76,175,130,.3); color: #6fd9a8; }
+
+    /* ── Badges ── */
+    .status-badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: .75rem;
+      font-weight: 500;
+    }
+    .status-todo        { background: rgba(123,126,148,.15); color: var(--muted); }
+    .status-in_progress { background: rgba(108,99,255,.15);  color: #857dff; }
+    .status-done        { background: rgba(76,175,130,.15);  color: #4caf82; }
+    .priority-low       { background: rgba(76,175,130,.12);  color: #4caf82; }
+    .priority-medium    { background: rgba(255,193,7,.12);   color: #ffc107; }
+    .priority-high      { background: rgba(255,92,92,.12);   color: #ff5c5c; }
+
+    /* ── Table ── */
+    .table { width: 100%; border-collapse: collapse; }
+    .table th, .table td {
+      padding: .75rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      font-size: .875rem;
+    }
+    .table th { color: var(--muted); font-weight: 500; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+    .table tr:hover td { background: rgba(255,255,255,.02); }
+    .table tr:last-child td { border-bottom: none; }
+  </style>
+
+  {% block extra_styles %}{% endblock %}
+</head>
+<body>
+
+<nav class="navbar">
+  <a class="navbar__brand" href="/projects">Task<span>Flow</span></a>
+  <div class="navbar__links">
+    {% if request.state.user is defined and request.state.user %}
+      <a href="/projects">Projects</a>
+      {% if request.state.user.role in ('admin', 'manager') %}
+        <a href="/users">Users</a>
+      {% endif %}
+      <span class="badge">{{ request.state.user.username }}</span>
+      <a href="/auth/logout" class="btn btn-ghost btn-sm">Logout</a>
+    {% else %}
+      <a href="/auth/login">Login</a>
+      <a href="/auth/register" class="btn btn-primary btn-sm">Register</a>
+    {% endif %}
+  </div>
+</nav>
+
+<div class="container">
+  {% block content %}{% endblock %}
+</div>
+
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>

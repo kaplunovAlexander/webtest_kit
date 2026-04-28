@@ -1,0 +1,197 @@
+<!-- backend/app/templates/tasks/form.html -->
+{% extends "base.html" %}
+{% block title %}
+  {% if task %}Edit task{% else %}New task{% endif %} — {{ project.title }}
+{% endblock %}
+
+{% block extra_styles %}
+<style>
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  @media (max-width: 560px) {
+    .form-row { grid-template-columns: 1fr; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 640px; margin: 0 auto;">
+
+  <!-- Header -->
+  <div class="page-header" style="margin-bottom: 1.5rem;">
+    <div>
+      <a href="/projects/{{ project.id }}"
+         style="color: var(--muted); font-size: .85rem;">
+        ← {{ project.title }}
+      </a>
+      <h1 class="page-title" style="margin-top: .3rem;">
+        {% if task %}Edit task{% else %}New task{% endif %}
+      </h1>
+    </div>
+  </div>
+
+  {% if errors %}
+    <div class="alert alert-danger" data-testid="alert-error">
+      {% for e in errors %}{{ e }}{% if not loop.last %}<br>{% endif %}{% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="card">
+    <form
+      method="post"
+      action="{% if task %}/projects/{{ project.id }}/tasks/{{ task.id }}/edit
+              {% else %}/projects/{{ project.id }}/tasks/new{% endif %}"
+      novalidate
+    >
+      <!-- Title -->
+      <div class="form-group">
+        <label class="form-label" for="title">
+          Task title <span style="color: var(--danger)">*</span>
+        </label>
+        <input
+          id="title"
+          name="title"
+          type="text"
+          class="form-control"
+          placeholder="e.g. Fix login button on mobile"
+          value="{{ form.title if form is defined and form
+                   else (task.title if task else '') }}"
+          data-testid="input-title"
+          required
+        />
+      </div>
+
+      <!-- Description -->
+      <div class="form-group">
+        <label class="form-label" for="description">Description</label>
+        <textarea
+          id="description"
+          name="description"
+          class="form-control"
+          placeholder="Steps to reproduce, acceptance criteria…"
+          data-testid="input-description"
+        >{{ form.description if form is defined and form
+           else (task.description if task and task.description else '') }}</textarea>
+      </div>
+
+      <!-- Status + Priority -->
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="task_status">Status</label>
+          <select id="task_status" name="task_status"
+                  class="form-control" data-testid="select-status">
+            {% set cur_status = (form.status if form is defined and form
+                                 else (task.status.value if task else 'todo')) %}
+            {% for s in statuses %}
+              <option value="{{ s.value }}"
+                {% if s.value == cur_status %}selected{% endif %}>
+                {{ s.value.replace('_', ' ') | title }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="priority">Priority</label>
+          <select id="priority" name="priority"
+                  class="form-control" data-testid="select-priority">
+            {% set cur_priority = (form.priority if form is defined and form
+                                   else (task.priority.value if task else 'medium')) %}
+            {% for p in priorities %}
+              <option value="{{ p.value }}"
+                {% if p.value == cur_priority %}selected{% endif %}>
+                {{ p.value | title }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <!-- Due date + Assignee -->
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="due_date">Due date</label>
+          <input
+            id="due_date"
+            name="due_date"
+            type="date"
+            class="form-control"
+            value="{{ form.due_date if form is defined and form
+                     else (task.due_date.strftime('%Y-%m-%d') if task and task.due_date else '') }}"
+            data-testid="input-due-date"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="assignee_id">Assignee</label>
+          <select id="assignee_id" name="assignee_id"
+                  class="form-control" data-testid="select-assignee">
+            {% set cur_assignee = (form.assignee_id | string
+                                   if form is defined and form
+                                   else (task.assignee_id | string if task and task.assignee_id else '')) %}
+            <option value="">— Unassigned —</option>
+            {% for u in users %}
+              <option value="{{ u.id }}"
+                {% if u.id | string == cur_assignee %}selected{% endif %}>
+                {{ u.username }}{% if u.full_name %} ({{ u.full_name }}){% endif %}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div style="display: flex; gap: .75rem; justify-content: flex-end; margin-top: 1.5rem;">
+        <a href="/projects/{{ project.id }}"
+           class="btn btn-ghost" data-testid="btn-cancel">Cancel</a>
+        <button type="submit" class="btn btn-primary" data-testid="btn-submit">
+          {% if task %}Save changes{% else %}Create task{% endif %}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Quick status update for existing task -->
+  {% if task %}
+  <div class="card" style="margin-top: 1.5rem;">
+    <div style="font-size: .8rem; color: var(--muted); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: .05em;">
+      Quick status change
+    </div>
+    <div style="display: flex; gap: .6rem; flex-wrap: wrap;">
+      {% for s in statuses %}
+      <form method="post"
+            action="/projects/{{ project.id }}/tasks/{{ task.id }}/edit">
+        <!--
+          Отправляем все обязательные поля, меняем только статус.
+          Это удобный паттерн для тестирования одного поля без заполнения формы.
+        -->
+        <input type="hidden" name="title"       value="{{ task.title }}">
+        <input type="hidden" name="description" value="{{ task.description or '' }}">
+        <input type="hidden" name="task_status" value="{{ s.value }}">
+        <input type="hidden" name="priority"    value="{{ task.priority.value }}">
+        <input type="hidden" name="due_date"    value="{{ task.due_date.strftime('%Y-%m-%d') if task.due_date else '' }}">
+        <input type="hidden" name="assignee_id" value="{{ task.assignee_id or '' }}">
+        <button
+          type="submit"
+          class="btn btn-sm {% if task.status.value == s.value %}btn-primary{% else %}btn-ghost{% endif %}"
+          data-testid="quick-status-{{ s.value }}"
+        >
+          {{ s.value.replace('_', ' ') | title }}
+        </button>
+      </form>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Task meta -->
+  <div style="margin-top: 1.2rem; color: var(--muted); font-size: .8rem;">
+    Created: {{ task.created_at.strftime('%d %b %Y, %H:%M') }} ·
+    Updated: {{ task.updated_at.strftime('%d %b %Y, %H:%M') }}
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

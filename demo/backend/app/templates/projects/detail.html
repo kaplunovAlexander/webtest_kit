@@ -1,0 +1,118 @@
+<!-- backend/app/templates/projects/detail.html -->
+{% extends "base.html" %}
+{% block title %}{{ project.title }} — TaskFlow{% endblock %}
+
+{% block content %}
+
+<!-- Header -->
+<div class="page-header">
+  <div>
+    <a href="/projects" style="color: var(--muted); font-size: .85rem;">← Projects</a>
+    <h1 class="page-title" style="margin-top: .3rem;" data-testid="project-title">
+      {{ project.title }}
+    </h1>
+    {% if project.description %}
+      <p style="color: var(--muted); margin-top: .25rem; font-size: .9rem;">
+        {{ project.description }}
+      </p>
+    {% endif %}
+  </div>
+
+  <div style="display: flex; gap: .75rem; align-items: center;">
+    {% if can_edit %}
+      <a href="/projects/{{ project.id }}/edit"
+         class="btn btn-ghost btn-sm" data-testid="btn-edit">Edit project</a>
+    {% endif %}
+    <a href="/projects/{{ project.id }}/tasks/new"
+       class="btn btn-primary btn-sm" data-testid="btn-new-task">+ Add task</a>
+  </div>
+</div>
+
+<!-- Stats row -->
+{% set total    = project.tasks | length %}
+{% set done     = project.tasks | selectattr('status', 'equalto', 'done')        | list | length %}
+{% set in_prog  = project.tasks | selectattr('status', 'equalto', 'in_progress') | list | length %}
+{% set todo_cnt = project.tasks | selectattr('status', 'equalto', 'todo')        | list | length %}
+
+<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem;">
+  {% for label, value, color in [
+      ('Total',       total,    'var(--text)'),
+      ('To do',       todo_cnt, 'var(--muted)'),
+      ('In progress', in_prog,  '#857dff'),
+      ('Done',        done,     '#4caf82'),
+  ] %}
+  <div class="card" style="text-align: center; padding: 1rem;">
+    <div style="font-size: 1.6rem; font-weight: 700; color: {{ color }};">{{ value }}</div>
+    <div style="font-size: .75rem; color: var(--muted); margin-top: .2rem;">{{ label }}</div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Tasks table -->
+<div class="card" style="padding: 0; overflow: hidden;">
+  {% if project.tasks %}
+  <table class="table" data-testid="tasks-table">
+    <thead>
+      <tr>
+        <th>Task</th>
+        <th>Status</th>
+        <th>Priority</th>
+        <th>Assignee</th>
+        <th>Due date</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for task in project.tasks %}
+      <tr data-testid="task-row" data-task-id="{{ task.id }}">
+        <td>
+          <a href="/projects/{{ project.id }}/tasks/{{ task.id }}/edit"
+             data-testid="task-link">{{ task.title }}</a>
+        </td>
+        <td>
+          <span class="status-badge status-{{ task.status }}" data-testid="task-status">
+            {{ task.status.replace('_', ' ') | title }}
+          </span>
+        </td>
+        <td>
+          <span class="status-badge priority-{{ task.priority }}" data-testid="task-priority">
+            {{ task.priority | title }}
+          </span>
+        </td>
+        <td style="color: var(--muted);">
+          {{ task.assignee.username if task.assignee else '—' }}
+        </td>
+        <td style="color: var(--muted); font-size: .8rem;">
+          {{ task.due_date.strftime('%d %b %Y') if task.due_date else '—' }}
+        </td>
+        <td style="text-align: right;">
+          <form method="post"
+                action="/projects/{{ project.id }}/tasks/{{ task.id }}/delete"
+                style="display:inline"
+                onsubmit="return confirm('Delete task?')">
+            <button type="submit"
+                    class="btn btn-danger btn-sm"
+                    data-testid="btn-delete-task">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% else %}
+  <div style="text-align: center; padding: 3rem 2rem;" data-testid="tasks-empty">
+    <div style="color: var(--muted); margin-bottom: 1rem;">No tasks in this project yet.</div>
+    <a href="/projects/{{ project.id }}/tasks/new"
+       class="btn btn-primary btn-sm" data-testid="btn-add-first-task">Add first task</a>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Meta -->
+<div style="margin-top: 1.5rem; color: var(--muted); font-size: .8rem;">
+  Owner: <strong>{{ project.owner.username }}</strong> ·
+  Created: {{ project.created_at.strftime('%d %b %Y') }}
+</div>
+
+{% endblock %}
