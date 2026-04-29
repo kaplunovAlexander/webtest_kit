@@ -42,9 +42,9 @@ dev = [
 webtest-kit = "webtest_kit.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/kaplunovAlexander/webtest-kit"
+Homepage = "https://github.com/kaplunovAlexander/webtest_kit"
 Documentation = "https://github.com/kaplunovAlexander/webtest-kit/docs"
-Repository = "https://github.com/kaplunovAlexander/webtest-kit"
+Repository = "https://github.com/kaplunovAlexander/webtest_kit"
 Issues = "https://github.com/kaplunovAlexander/webtest-kit/issues"
 
 [tool.hatch.build.targets.wheel]
