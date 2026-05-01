@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "webtest-kit"
-version = "0.1.0"
+version = "0.1.1"
 description = "A framework for automated functional testing of web applications"
 readme = "README.md"
 license = { file = "LICENSE" }
